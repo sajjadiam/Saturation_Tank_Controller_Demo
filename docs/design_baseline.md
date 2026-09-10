@@ -192,6 +192,14 @@ Shunt node -> 4.7k -> ADC
 
 مقادیر دقیق قطعات می‌توانند در زمان نهایی‌سازی شماتیک تغییر کنند.
 
+### Pin تخصیص‌یافته
+
+```text
+PA0 = ADC1_IN0
+```
+
+نمونه‌برداری این ورودی با `TIM3 TRGO -> ADC1 -> DMA1 Channel1` انجام خواهد شد. جزئیات در `docs/cubemx_configuration.md` ثبت شده است.
+
 ## 9. Level Switch Input
 
 Level Switch از نوع Reed Relay/Switch است.
@@ -241,7 +249,7 @@ Optocoupler input
 ### Analog Input
 
 ```text
-AI1 -> Pressure Sensor 0..10 bar / 4..20mA
+AI1 -> PA0 / ADC1_IN0 -> Pressure Sensor 0..10 bar / 4..20mA
 ```
 
 ### Digital Input
@@ -259,16 +267,54 @@ DO3 -> Outlet Solenoid Valve
 DO4 -> Spare
 ```
 
-Pinهای واقعی STM32 هنوز تعیین نشده‌اند.
+پایه‌های واقعی DI1 و DO1..DO4 هنوز در این سند ثبت نشده‌اند.
 
-## 12. موارد باز برای ادامه
+## 12. STM32CubeMX Baseline
 
-- تعیین Pin Map نهایی STM32F103C8T6
+تنظیمات اصلی فعلی:
+
+```text
+HSE              = 8 MHz crystal
+PLL               = HSE x9
+SYSCLK/HCLK       = 72 MHz
+PCLK1             = 36 MHz
+PCLK2             = 72 MHz
+ADC Clock         = 12 MHz (PCLK2 / 6)
+Debug             = Serial Wire
+PA0               = ADC1_IN0
+ADC Trigger       = TIM3 TRGO
+ADC Sampling Time = 239.5 cycles
+DMA               = DMA1 Channel1 / Circular / Half-word
+TIM3 TRGO         = Update Event
+TIM3 IRQ          = Disabled
+```
+
+نرخ نمونه‌برداری هدف فشار `100 Hz` است. برای این نرخ:
+
+```text
+TIM3 PSC = 7199
+TIM3 ARR = 99
+```
+
+در commit `48c3480` با عنوان `update cubemx`، `PSC=7199` و `TRGO=Update Event` ثبت شده‌اند اما `ARR=99` هنوز در فایل `.ioc` ثبت نشده است. این مورد قبل از ادامه Firmware باید در CubeMX اصلاح و commit شود.
+
+مستند کامل تنظیمات در:
+
+```text
+docs/cubemx_configuration.md
+```
+
+قرار دارد.
+
+## 13. موارد باز برای ادامه
+
+- تعیین Pin Map نهایی Level Switch و خروجی‌های Relay
+- اصلاح `TIM3 Counter Period = 99` در CubeMX برای نرخ نمونه‌برداری 100 Hz
 - تعیین Start/Stop interface اپراتور
 - تعیین مقادیر نهایی Pressure hysteresis
 - تعیین limits و timeoutهای لازم برای Demo
 - نهایی‌سازی شماتیک مدار 4..20mA
 - نهایی‌سازی مدار Optocoupler Level Input
-- STM32CubeMX configuration
+- تعیین روش نهایی فیلتر ADC پس از مشاهده داده واقعی
 - ساختار Firmware و Repository
 - تست مرحله‌ای I/O و State Machine
