@@ -34,7 +34,7 @@ bool pressure_init(void);
 void pressure_process(uint32_t now_ms);
 
 /**
- * @brief Check whether at least one valid sample block has been processed.
+ * @brief Check whether a recent ADC sample block is available.
  */
 bool pressure_is_ready(void);
 

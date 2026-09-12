@@ -75,7 +75,7 @@ static void tank_controller_apply_outputs(bool pressure_ok) {
 	bsp_relay_set(BSP_RELAY_PUMP, pump_on);
 	bsp_relay_set(BSP_RELAY_AIR, air_on);
 	bsp_relay_set(BSP_RELAY_OUTLET, outlet_on);
-	bsp_relay_set(BSP_RELAY_SPARE, false);
+	bsp_relay_set(BSP_RELAY_SIREN, false);
 	
 	bsp_led_set(BSP_LED_BLUE, pump_on);
 	bsp_led_set(BSP_LED_RED1, air_on);
@@ -129,6 +129,7 @@ static void tank_controller_update_overpressure(bool pressure_ready, bool pressu
 	if (pressure_status == PRESSURE_STATUS_OVERRANGE) {
 		overpressure_alarm = true;
 		bsp_buzzer_set(true);
+		bsp_relay_set(BSP_RELAY_SIREN ,true);
 		return;
 	}
 	
@@ -136,8 +137,14 @@ static void tank_controller_update_overpressure(bool pressure_ready, bool pressu
 	 * No usable pressure information.
 	 */
 	if (!pressure_ready || !pressure_valid) {
-		overpressure_alarm = false;
+		/*
+		 * Do not clear an existing overpressure alarm
+		 * without a valid pressure measurement below
+		 * the clear threshold.
+		 */
 		bsp_buzzer_set(false);
+		bsp_relay_set(BSP_RELAY_SIREN ,false);
+		
 		return;
 	}
 
@@ -153,6 +160,7 @@ static void tank_controller_update_overpressure(bool pressure_ready, bool pressu
 	}
 
 	bsp_buzzer_set(overpressure_alarm);
+	bsp_relay_set(BSP_RELAY_SIREN ,overpressure_alarm);
 }
 /* -------------------------------------------------------------------------- */
 /* Public functions                                                           */
@@ -169,6 +177,7 @@ bool tank_controller_init(uint32_t now_ms) {
 
 	overpressure_alarm = false;
 	bsp_buzzer_set(false);
+	bsp_relay_set(BSP_RELAY_SIREN ,false);
 	
 	/*
 	 * Initialize debouncers from the actual current logical

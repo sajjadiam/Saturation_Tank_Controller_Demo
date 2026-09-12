@@ -11,7 +11,7 @@ typedef enum {
 	BSP_RELAY_PUMP = 0,
 	BSP_RELAY_AIR,
 	BSP_RELAY_OUTLET,
-	BSP_RELAY_SPARE,
+	BSP_RELAY_SIREN,
 
 	BSP_RELAY_COUNT
 } bsp_relay_t;
