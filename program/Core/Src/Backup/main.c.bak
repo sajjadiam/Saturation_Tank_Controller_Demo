@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tank_controller.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,18 +95,16 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+	if (!tank_controller_init(HAL_GetTick())) {
+		Error_Handler();
+	}
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint32_t time_space = HAL_GetTick() + 500;
   while (1)
   {
-		if(time_space >= HAL_GetTick()) {
-			time_space = HAL_GetTick() + 500;
-			HAL_GPIO_TogglePin(
-		}
+		tank_controller_process(HAL_GetTick());
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
