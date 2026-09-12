@@ -35,9 +35,16 @@ static void tank_controller_enter_idle(void) {
 	pump_request = false;
 	pump_restart_timer_active = false;
 	pump_restart_since_ms = 0U;
-	
+
+	/*
+	 * Turn process outputs off.
+	 * SIREN is controlled independently by alarm logic.
+	 */
+	bsp_relay_set(BSP_RELAY_PUMP, false);
+	bsp_relay_set(BSP_RELAY_AIR, false);
+	bsp_relay_set(BSP_RELAY_OUTLET, false);
+
 	bsp_leds_all_off();
-	bsp_relays_all_off();
 }
 
 static void tank_controller_update_air(uint16_t pressure_mbar) {
@@ -75,7 +82,6 @@ static void tank_controller_apply_outputs(bool pressure_ok) {
 	bsp_relay_set(BSP_RELAY_PUMP, pump_on);
 	bsp_relay_set(BSP_RELAY_AIR, air_on);
 	bsp_relay_set(BSP_RELAY_OUTLET, outlet_on);
-	bsp_relay_set(BSP_RELAY_SIREN, false);
 	
 	bsp_led_set(BSP_LED_BLUE, pump_on);
 	bsp_led_set(BSP_LED_RED1, air_on);
@@ -142,8 +148,8 @@ static void tank_controller_update_overpressure(bool pressure_ready, bool pressu
 		 * without a valid pressure measurement below
 		 * the clear threshold.
 		 */
-		bsp_buzzer_set(false);
-		bsp_relay_set(BSP_RELAY_SIREN ,false);
+		bsp_buzzer_set(overpressure_alarm);
+    bsp_relay_set(BSP_RELAY_SIREN, overpressure_alarm);
 		
 		return;
 	}

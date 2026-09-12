@@ -3,7 +3,7 @@
 <title>Static Call Graph - [program\program.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image program\program.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Sat Sep 12 17:39:02 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Sat Sep 12 17:44:11 2026
 <BR><P>
 <H3>Maximum Stack Usage =        216 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -973,6 +973,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_init
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_apply_outputs
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_update_overpressure
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_enter_idle
 <LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_relays_all_off
 </UL>
 
@@ -983,7 +984,6 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_init
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_apply_outputs
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_enter_idle
 </UL>
 
 <P><STRONG><a name="[a2]"></a>debounce_get_state</STRONG> (Thumb, 16 bytes, Stack size 4 bytes, debounce.o(.text.debounce_get_state))
@@ -1172,17 +1172,17 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
 </UL>
 
-<P><STRONG><a name="[9a]"></a>tank_controller_enter_idle</STRONG> (Thumb, 64 bytes, Stack size 8 bytes, tank_controller.o(.text.tank_controller_enter_idle))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = tank_controller_enter_idle &rArr; bsp_relays_all_off &rArr; bsp_relay_set &rArr; HAL_GPIO_WritePin
+<P><STRONG><a name="[9a]"></a>tank_controller_enter_idle</STRONG> (Thumb, 88 bytes, Stack size 16 bytes, tank_controller.o(.text.tank_controller_enter_idle))
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = tank_controller_enter_idle &rArr; bsp_leds_all_off &rArr; bsp_led_set &rArr; HAL_GPIO_WritePin
 </UL>
-<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_relays_all_off
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_relay_set
 <LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_leds_all_off
 </UL>
 <BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_process
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_init
 </UL>
 
-<P><STRONG><a name="[a0]"></a>tank_controller_update_overpressure</STRONG> (Thumb, 216 bytes, Stack size 32 bytes, tank_controller.o(.text.tank_controller_update_overpressure))
+<P><STRONG><a name="[a0]"></a>tank_controller_update_overpressure</STRONG> (Thumb, 234 bytes, Stack size 32 bytes, tank_controller.o(.text.tank_controller_update_overpressure))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = tank_controller_update_overpressure &rArr; bsp_relay_set &rArr; HAL_GPIO_WritePin
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pressure_get_status
@@ -1198,7 +1198,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tank_controller_process
 </UL>
 
-<P><STRONG><a name="[99]"></a>tank_controller_apply_outputs</STRONG> (Thumb, 238 bytes, Stack size 32 bytes, tank_controller.o(.text.tank_controller_apply_outputs))
+<P><STRONG><a name="[99]"></a>tank_controller_apply_outputs</STRONG> (Thumb, 230 bytes, Stack size 32 bytes, tank_controller.o(.text.tank_controller_apply_outputs))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = tank_controller_apply_outputs &rArr; bsp_relays_all_off &rArr; bsp_relay_set &rArr; HAL_GPIO_WritePin
 </UL>
 <BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_relays_all_off

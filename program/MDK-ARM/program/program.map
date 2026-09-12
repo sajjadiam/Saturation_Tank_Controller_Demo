@@ -1034,8 +1034,8 @@ Section Cross References
     tank_controller.o(.text.tank_controller_enter_idle) refers to tank_controller.o(.bss.pump_request) for pump_request
     tank_controller.o(.text.tank_controller_enter_idle) refers to tank_controller.o(.bss.pump_restart_timer_active) for pump_restart_timer_active
     tank_controller.o(.text.tank_controller_enter_idle) refers to tank_controller.o(.bss.pump_restart_since_ms) for pump_restart_since_ms
+    tank_controller.o(.text.tank_controller_enter_idle) refers to bsp_relays.o(.text.bsp_relay_set) for bsp_relay_set
     tank_controller.o(.text.tank_controller_enter_idle) refers to bsp_leds.o(.text.bsp_leds_all_off) for bsp_leds_all_off
-    tank_controller.o(.text.tank_controller_enter_idle) refers to bsp_relays.o(.text.bsp_relays_all_off) for bsp_relays_all_off
     tank_controller.o(.ARM.exidx.text.tank_controller_enter_idle) refers to tank_controller.o(.text.tank_controller_enter_idle) for [Anonymous Symbol]
     tank_controller.o(.text.tank_controller_process) refers to pressure.o(.text.pressure_process) for pressure_process
     tank_controller.o(.text.tank_controller_process) refers to pressure.o(.text.pressure_is_ready) for pressure_is_ready
@@ -2333,26 +2333,26 @@ Image Symbol Table
     [Anonymous Symbol]                       0x0800375c   Section        0  pressure.o(.text.pressure_is_ready)
     [Anonymous Symbol]                       0x0800376c   Section        0  pressure.o(.text.pressure_is_valid)
     [Anonymous Symbol]                       0x0800377c   Section        0  pressure.o(.text.pressure_process)
-    tank_controller_apply_outputs            0x08003975   Thumb Code   238  tank_controller.o(.text.tank_controller_apply_outputs)
+    tank_controller_apply_outputs            0x08003975   Thumb Code   230  tank_controller.o(.text.tank_controller_apply_outputs)
     [Anonymous Symbol]                       0x08003974   Section        0  tank_controller.o(.text.tank_controller_apply_outputs)
-    tank_controller_enter_idle               0x08003a65   Thumb Code    64  tank_controller.o(.text.tank_controller_enter_idle)
-    [Anonymous Symbol]                       0x08003a64   Section        0  tank_controller.o(.text.tank_controller_enter_idle)
-    [Anonymous Symbol]                       0x08003aa4   Section        0  tank_controller.o(.text.tank_controller_init)
-    [Anonymous Symbol]                       0x08003b2c   Section        0  tank_controller.o(.text.tank_controller_process)
-    tank_controller_update_air               0x08003ca9   Thumb Code    66  tank_controller.o(.text.tank_controller_update_air)
-    [Anonymous Symbol]                       0x08003ca8   Section        0  tank_controller.o(.text.tank_controller_update_air)
-    tank_controller_update_overpressure      0x08003ced   Thumb Code   216  tank_controller.o(.text.tank_controller_update_overpressure)
-    [Anonymous Symbol]                       0x08003cec   Section        0  tank_controller.o(.text.tank_controller_update_overpressure)
-    tank_controller_update_pump              0x08003dc5   Thumb Code   154  tank_controller.o(.text.tank_controller_update_pump)
-    [Anonymous Symbol]                       0x08003dc4   Section        0  tank_controller.o(.text.tank_controller_update_pump)
-    HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable 0x08003e76   Data          16  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable)
-    [Anonymous Symbol]                       0x08003e76   Section        0  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable)
-    HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable 0x08003e86   Data           2  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable)
-    [Anonymous Symbol]                       0x08003e86   Section        0  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable)
-    HAL_RCC_GetSysClockFreq.aPLLMULFactorTable 0x08003e88   Data          16  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable)
-    [Anonymous Symbol]                       0x08003e88   Section        0  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable)
-    HAL_RCC_GetSysClockFreq.aPredivFactorTable 0x08003e98   Data           2  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable)
-    [Anonymous Symbol]                       0x08003e98   Section        0  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable)
+    tank_controller_enter_idle               0x08003a5d   Thumb Code    88  tank_controller.o(.text.tank_controller_enter_idle)
+    [Anonymous Symbol]                       0x08003a5c   Section        0  tank_controller.o(.text.tank_controller_enter_idle)
+    [Anonymous Symbol]                       0x08003ab4   Section        0  tank_controller.o(.text.tank_controller_init)
+    [Anonymous Symbol]                       0x08003b3c   Section        0  tank_controller.o(.text.tank_controller_process)
+    tank_controller_update_air               0x08003cb9   Thumb Code    66  tank_controller.o(.text.tank_controller_update_air)
+    [Anonymous Symbol]                       0x08003cb8   Section        0  tank_controller.o(.text.tank_controller_update_air)
+    tank_controller_update_overpressure      0x08003cfd   Thumb Code   234  tank_controller.o(.text.tank_controller_update_overpressure)
+    [Anonymous Symbol]                       0x08003cfc   Section        0  tank_controller.o(.text.tank_controller_update_overpressure)
+    tank_controller_update_pump              0x08003de9   Thumb Code   154  tank_controller.o(.text.tank_controller_update_pump)
+    [Anonymous Symbol]                       0x08003de8   Section        0  tank_controller.o(.text.tank_controller_update_pump)
+    HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable 0x08003e9a   Data          16  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable)
+    [Anonymous Symbol]                       0x08003e9a   Section        0  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable)
+    HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable 0x08003eaa   Data           2  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable)
+    [Anonymous Symbol]                       0x08003eaa   Section        0  stm32f1xx_hal_rcc_ex.o(.rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable)
+    HAL_RCC_GetSysClockFreq.aPLLMULFactorTable 0x08003eac   Data          16  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable)
+    [Anonymous Symbol]                       0x08003eac   Section        0  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable)
+    HAL_RCC_GetSysClockFreq.aPredivFactorTable 0x08003ebc   Data           2  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable)
+    [Anonymous Symbol]                       0x08003ebc   Section        0  stm32f1xx_hal_rcc.o(.rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable)
     .bss                                     0x20000010   Section       96  libspace.o(.bss)
     air_request                              0x20000070   Data           1  tank_controller.o(.bss.air_request)
     [Anonymous Symbol]                       0x20000070   Section        0  tank_controller.o(.bss.air_request)
@@ -2627,12 +2627,12 @@ Image Symbol Table
     pressure_is_ready                        0x0800375d   Thumb Code    16  pressure.o(.text.pressure_is_ready)
     pressure_is_valid                        0x0800376d   Thumb Code    16  pressure.o(.text.pressure_is_valid)
     pressure_process                         0x0800377d   Thumb Code   504  pressure.o(.text.pressure_process)
-    tank_controller_init                     0x08003aa5   Thumb Code   136  tank_controller.o(.text.tank_controller_init)
-    tank_controller_process                  0x08003b2d   Thumb Code   378  tank_controller.o(.text.tank_controller_process)
-    AHBPrescTable                            0x08003e5e   Data          16  system_stm32f1xx.o(.rodata.AHBPrescTable)
-    APBPrescTable                            0x08003e6e   Data           8  system_stm32f1xx.o(.rodata.APBPrescTable)
-    Region$$Table$$Base                      0x08003e9c   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08003ebc   Number         0  anon$$obj.o(Region$$Table)
+    tank_controller_init                     0x08003ab5   Thumb Code   136  tank_controller.o(.text.tank_controller_init)
+    tank_controller_process                  0x08003b3d   Thumb Code   378  tank_controller.o(.text.tank_controller_process)
+    AHBPrescTable                            0x08003e82   Data          16  system_stm32f1xx.o(.rodata.AHBPrescTable)
+    APBPrescTable                            0x08003e92   Data           8  system_stm32f1xx.o(.rodata.APBPrescTable)
+    Region$$Table$$Base                      0x08003ec0   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08003ee0   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x20000000   Data           4  system_stm32f1xx.o(.data.SystemCoreClock)
     uwTickFreq                               0x20000004   Data           1  stm32f1xx_hal.o(.data.uwTickFreq)
     uwTickPrio                               0x20000008   Data           4  stm32f1xx_hal.o(.data.uwTickPrio)
@@ -2653,9 +2653,9 @@ Memory Map of the image
 
   Image Entry point : 0x080000ed
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00003ed0, Max: 0x00010000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00003ef0, Max: 0x00010000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00003ebc, Max: 0x00010000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00003ee0, Max: 0x00010000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2862,38 +2862,39 @@ Memory Map of the image
     0x0800375c   0x0800375c   0x00000010   Code   RO         1165    .text.pressure_is_ready  pressure.o
     0x0800376c   0x0800376c   0x00000010   Code   RO         1173    .text.pressure_is_valid  pressure.o
     0x0800377c   0x0800377c   0x000001f8   Code   RO         1163    .text.pressure_process  pressure.o
-    0x08003974   0x08003974   0x000000ee   Code   RO         1203    .text.tank_controller_apply_outputs  tank_controller.o
-    0x08003a62   0x08003a62   0x00000002   PAD
-    0x08003a64   0x08003a64   0x00000040   Code   RO         1195    .text.tank_controller_enter_idle  tank_controller.o
-    0x08003aa4   0x08003aa4   0x00000088   Code   RO         1193    .text.tank_controller_init  tank_controller.o
-    0x08003b2c   0x08003b2c   0x0000017a   Code   RO         1197    .text.tank_controller_process  tank_controller.o
-    0x08003ca6   0x08003ca6   0x00000002   PAD
-    0x08003ca8   0x08003ca8   0x00000042   Code   RO         1205    .text.tank_controller_update_air  tank_controller.o
-    0x08003cea   0x08003cea   0x00000002   PAD
-    0x08003cec   0x08003cec   0x000000d8   Code   RO         1199    .text.tank_controller_update_overpressure  tank_controller.o
-    0x08003dc4   0x08003dc4   0x0000009a   Code   RO         1201    .text.tank_controller_update_pump  tank_controller.o
-    0x08003e5e   0x08003e5e   0x00000010   Data   RO         1096    .rodata.AHBPrescTable  system_stm32f1xx.o
-    0x08003e6e   0x08003e6e   0x00000008   Data   RO         1097    .rodata.APBPrescTable  system_stm32f1xx.o
-    0x08003e76   0x08003e76   0x00000010   Data   RO          340    .rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable  stm32f1xx_hal_rcc_ex.o
-    0x08003e86   0x08003e86   0x00000002   Data   RO          341    .rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable  stm32f1xx_hal_rcc_ex.o
-    0x08003e88   0x08003e88   0x00000010   Data   RO          325    .rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable  stm32f1xx_hal_rcc.o
-    0x08003e98   0x08003e98   0x00000002   Data   RO          326    .rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable  stm32f1xx_hal_rcc.o
-    0x08003e9a   0x08003e9a   0x00000002   PAD
-    0x08003e9c   0x08003e9c   0x00000020   Data   RO         1393    Region$$Table       anon$$obj.o
+    0x08003974   0x08003974   0x000000e6   Code   RO         1203    .text.tank_controller_apply_outputs  tank_controller.o
+    0x08003a5a   0x08003a5a   0x00000002   PAD
+    0x08003a5c   0x08003a5c   0x00000058   Code   RO         1195    .text.tank_controller_enter_idle  tank_controller.o
+    0x08003ab4   0x08003ab4   0x00000088   Code   RO         1193    .text.tank_controller_init  tank_controller.o
+    0x08003b3c   0x08003b3c   0x0000017a   Code   RO         1197    .text.tank_controller_process  tank_controller.o
+    0x08003cb6   0x08003cb6   0x00000002   PAD
+    0x08003cb8   0x08003cb8   0x00000042   Code   RO         1205    .text.tank_controller_update_air  tank_controller.o
+    0x08003cfa   0x08003cfa   0x00000002   PAD
+    0x08003cfc   0x08003cfc   0x000000ea   Code   RO         1199    .text.tank_controller_update_overpressure  tank_controller.o
+    0x08003de6   0x08003de6   0x00000002   PAD
+    0x08003de8   0x08003de8   0x0000009a   Code   RO         1201    .text.tank_controller_update_pump  tank_controller.o
+    0x08003e82   0x08003e82   0x00000010   Data   RO         1096    .rodata.AHBPrescTable  system_stm32f1xx.o
+    0x08003e92   0x08003e92   0x00000008   Data   RO         1097    .rodata.APBPrescTable  system_stm32f1xx.o
+    0x08003e9a   0x08003e9a   0x00000010   Data   RO          340    .rodata.HAL_RCCEx_GetPeriphCLKFreq.aPLLMULFactorTable  stm32f1xx_hal_rcc_ex.o
+    0x08003eaa   0x08003eaa   0x00000002   Data   RO          341    .rodata.HAL_RCCEx_GetPeriphCLKFreq.aPredivFactorTable  stm32f1xx_hal_rcc_ex.o
+    0x08003eac   0x08003eac   0x00000010   Data   RO          325    .rodata.HAL_RCC_GetSysClockFreq.aPLLMULFactorTable  stm32f1xx_hal_rcc.o
+    0x08003ebc   0x08003ebc   0x00000002   Data   RO          326    .rodata.HAL_RCC_GetSysClockFreq.aPredivFactorTable  stm32f1xx_hal_rcc.o
+    0x08003ebe   0x08003ebe   0x00000002   PAD
+    0x08003ec0   0x08003ec0   0x00000020   Data   RO         1393    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08003ec0, Size: 0x00000c00, Max: 0x00005000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08003ee0, Size: 0x00000c00, Max: 0x00005000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x08003ec0   0x00000004   Data   RW         1095    .data.SystemCoreClock  system_stm32f1xx.o
-    0x20000004   0x08003ec4   0x00000001   Data   RW          286    .data.uwTickFreq    stm32f1xx_hal.o
-    0x20000005   0x08003ec5   0x00000003   PAD
-    0x20000008   0x08003ec8   0x00000004   Data   RW          285    .data.uwTickPrio    stm32f1xx_hal.o
-    0x2000000c   0x08003ecc   0x00000004   PAD
+    0x20000000   0x08003ee0   0x00000004   Data   RW         1095    .data.SystemCoreClock  system_stm32f1xx.o
+    0x20000004   0x08003ee4   0x00000001   Data   RW          286    .data.uwTickFreq    stm32f1xx_hal.o
+    0x20000005   0x08003ee5   0x00000003   PAD
+    0x20000008   0x08003ee8   0x00000004   Data   RW          285    .data.uwTickPrio    stm32f1xx_hal.o
+    0x2000000c   0x08003eec   0x00000004   PAD
     0x20000010        -       0x00000060   Zero   RW         1258    .bss                c_w.l(libspace.o)
     0x20000070        -       0x00000001   Zero   RW         1213    .bss.air_request    tank_controller.o
-    0x20000071   0x08003ecc   0x00000003   PAD
+    0x20000071   0x08003eec   0x00000003   PAD
     0x20000074        -       0x00000030   Zero   RW           39    .bss.hadc1          adc.o
     0x200000a4        -       0x00000044   Zero   RW           40    .bss.hdma_adc1      adc.o
     0x200000e8        -       0x0000000c   Zero   RW           58    .bss.hiwdg          iwdg.o
@@ -2903,23 +2904,23 @@ Memory Map of the image
     0x20000190        -       0x00000001   Zero   RW         1209    .bss.overpressure_alarm  tank_controller.o
     0x20000191        -       0x00000001   Zero   RW         1177    .bss.pressure_block_ready  pressure.o
     0x20000192        -       0x00000020   Zero   RW         1184    .bss.pressure_dma_buffer  pressure.o
-    0x200001b2   0x08003ecc   0x00000002   PAD
+    0x200001b2   0x08003eec   0x00000002   PAD
     0x200001b4        -       0x00000004   Zero   RW         1182    .bss.pressure_last_update_ms  pressure.o
     0x200001b8        -       0x00000002   Zero   RW         1179    .bss.pressure_mbar  pressure.o
     0x200001ba        -       0x00000002   Zero   RW         1178    .bss.pressure_raw   pressure.o
     0x200001bc        -       0x00000001   Zero   RW         1180    .bss.pressure_ready  pressure.o
-    0x200001bd   0x08003ecc   0x00000001   PAD
+    0x200001bd   0x08003eec   0x00000001   PAD
     0x200001be        -       0x00000020   Zero   RW         1185    .bss.pressure_sample_buffer  pressure.o
     0x200001de        -       0x00000001   Zero   RW         1183    .bss.pressure_status  pressure.o
     0x200001df        -       0x00000001   Zero   RW         1181    .bss.pressure_valid  pressure.o
     0x200001e0        -       0x00000001   Zero   RW         1214    .bss.pump_request   tank_controller.o
-    0x200001e1   0x08003ecc   0x00000003   PAD
+    0x200001e1   0x08003eec   0x00000003   PAD
     0x200001e4        -       0x00000004   Zero   RW         1216    .bss.pump_restart_since_ms  tank_controller.o
     0x200001e8        -       0x00000001   Zero   RW         1215    .bss.pump_restart_timer_active  tank_controller.o
-    0x200001e9   0x08003ecc   0x00000003   PAD
+    0x200001e9   0x08003eec   0x00000003   PAD
     0x200001ec        -       0x0000000c   Zero   RW         1210    .bss.start_debounce  tank_controller.o
     0x200001f8        -       0x00000001   Zero   RW         1212    .bss.tank_state     tank_controller.o
-    0x200001f9   0x08003ecc   0x00000003   PAD
+    0x200001f9   0x08003eec   0x00000003   PAD
     0x200001fc        -       0x00000004   Zero   RW          287    .bss.uwTick         stm32f1xx_hal.o
     0x20000200        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f103xb.o
     0x20000400        -       0x00000800   Zero   RW            1    STACK               startup_stm32f103xb.o
@@ -2959,14 +2960,14 @@ Image component sizes
        344          0          0          0          0      20196   stm32f1xx_hal_uart.o
         50          0          0          0          0       1134   stm32f1xx_it.o
          2          0         24          4          0       1616   system_stm32f1xx.o
-      1252          0          0          0         33       3584   tank_controller.o
+      1286          0          0          0         33       3593   tank_controller.o
        192          0          0          0         72       4508   tim.o
        216          0          0          0         72       4143   usart.o
 
     ----------------------------------------------------------------------
-     15330         30        330         12       2964     163949   Object Totals
+     15366         30        330         12       2964     163958   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        96          0          2          3         19          0   (incl. Padding)
+        98          0          2          3         19          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -3014,15 +3015,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     15730         46        330         12       3060     163961   Grand Totals
-     15730         46        330         12       3060     163961   ELF Image Totals
-     15730         46        330         12          0          0   ROM Totals
+     15766         46        330         12       3060     163970   Grand Totals
+     15766         46        330         12       3060     163970   ELF Image Totals
+     15766         46        330         12          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                16060 (  15.68kB)
+    Total RO  Size (Code + RO Data)                16096 (  15.72kB)
     Total RW  Size (RW Data + ZI Data)              3072 (   3.00kB)
-    Total ROM Size (Code + RO Data + RW Data)      16072 (  15.70kB)
+    Total ROM Size (Code + RO Data + RW Data)      16108 (  15.73kB)
 
 ==============================================================================
 
