@@ -119,6 +119,22 @@ static void tank_controller_update_pump(bool level_reached, uint32_t now_ms) {
 	}
 }
 static void tank_controller_update_overpressure(bool pressure_ready, bool pressure_valid, uint16_t pressure_mbar) {
+	pressure_status_t pressure_status;
+
+  pressure_status = pressure_get_status();
+
+	/*
+	 * Electrical high overrange is treated as an alarm condition.
+	 */
+	if (pressure_status == PRESSURE_STATUS_OVERRANGE) {
+		overpressure_alarm = true;
+		bsp_buzzer_set(true);
+		return;
+	}
+	
+	/*
+	 * No usable pressure information.
+	 */
 	if (!pressure_ready || !pressure_valid) {
 		overpressure_alarm = false;
 		bsp_buzzer_set(false);
@@ -198,7 +214,7 @@ void tank_controller_process(uint32_t now_ms) {
 	/*
 	 * Process a newly completed ADC block, if available.
 	 */
-	pressure_process();
+	pressure_process(now_ms);
 
 	pressure_ready = pressure_is_ready();
 	pressure_valid = false;

@@ -8,6 +8,14 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef enum {
+	PRESSURE_STATUS_NOT_READY = 0,
+	PRESSURE_STATUS_OK,
+	PRESSURE_STATUS_UNDERRANGE,
+	PRESSURE_STATUS_OVERRANGE,
+	PRESSURE_STATUS_STALE
+} pressure_status_t;
+
 /**
  * @brief Initialize pressure acquisition.
  *
@@ -23,7 +31,7 @@ bool pressure_init(void);
  *
  * Must be called periodically from the main loop.
  */
-void pressure_process(void);
+void pressure_process(uint32_t now_ms);
 
 /**
  * @brief Check whether at least one valid sample block has been processed.
@@ -43,6 +51,8 @@ uint16_t pressure_get_mbar(void);
 uint16_t pressure_get_raw(void);
 
 bool pressure_is_valid(void);
+
+pressure_status_t pressure_get_status(void);
 
 #ifdef __cplusplus
 }

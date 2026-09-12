@@ -86,7 +86,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+	__HAL_DBGMCU_FREEZE_IWDG();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

@@ -13,6 +13,10 @@
 #define PRESSURE_RAW_VALID_MIN        560U
 #define PRESSURE_RAW_VALID_MAX        3900U
 
+#define PRESSURE_STALE_TIMEOUT_MS  		500U
+
+static uint32_t pressure_last_update_ms = 0U;
+
 static uint16_t pressure_dma_buffer[PRESSURE_ADC_BUFFER_SIZE];
 static volatile uint16_t pressure_sample_buffer[PRESSURE_ADC_BUFFER_SIZE];
 
@@ -24,7 +28,21 @@ static bool pressure_ready = false;
 
 static bool pressure_valid = false;
 
+static pressure_status_t pressure_status = PRESSURE_STATUS_NOT_READY;
+
 bool pressure_init(void) {
+	pressure_block_ready = false;
+
+	pressure_raw = 0U;
+	pressure_mbar = 0U;
+
+	pressure_ready = false;
+	pressure_valid = false;
+
+	pressure_last_update_ms = 0U;
+	
+	pressure_status = PRESSURE_STATUS_NOT_READY;
+	
 	if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK) {
 		return false;
 	}
@@ -43,7 +61,7 @@ bool pressure_init(void) {
 	return true;
 }
 
-void pressure_process(void) {
+void pressure_process(uint32_t now_ms) {
 	uint16_t samples[PRESSURE_ADC_BUFFER_SIZE];
 	uint32_t sum = 0U;
 	uint32_t i;
@@ -51,6 +69,15 @@ void pressure_process(void) {
 	uint16_t raw;
 
 	if (!pressure_block_ready) {
+		if (pressure_ready &&
+				((uint32_t)(now_ms - pressure_last_update_ms) >=
+				PRESSURE_STALE_TIMEOUT_MS))
+			{
+				pressure_ready = false;
+				pressure_valid = false;
+				pressure_status = PRESSURE_STATUS_STALE;
+			}
+
 		return;
 	}
 
@@ -81,13 +108,25 @@ void pressure_process(void) {
 
 	pressure_raw = raw;
 
-	pressure_valid = (raw >= PRESSURE_RAW_VALID_MIN) && (raw <= PRESSURE_RAW_VALID_MAX);
+	pressure_last_update_ms = now_ms;
+	pressure_ready = true;
 
-	if (!pressure_valid) {
-		pressure_mbar = 0U;
-		pressure_ready = true;
+	if (raw < PRESSURE_RAW_VALID_MIN) {
+    pressure_valid = false;
+    pressure_status = PRESSURE_STATUS_UNDERRANGE;
+    pressure_mbar = 0U;
+    return;
+	}
+
+	if (raw > PRESSURE_RAW_VALID_MAX) {
+		pressure_valid = false;
+		pressure_status = PRESSURE_STATUS_OVERRANGE;
+		pressure_mbar = PRESSURE_FULL_SCALE_MBAR;
 		return;
 	}
+
+	pressure_valid = true;
+	pressure_status = PRESSURE_STATUS_OK;
 
 	if (raw <= PRESSURE_RAW_0_BAR) {
 		pressure_mbar = 0U;
@@ -104,7 +143,6 @@ void pressure_process(void) {
 			);
 	}
 
-	pressure_ready = true;
 }
 
 bool pressure_is_ready(void) {
@@ -135,4 +173,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
 bool pressure_is_valid(void) {
 	return pressure_valid;
+}
+
+pressure_status_t pressure_get_status(void) {
+	return pressure_status;
 }
