@@ -22,6 +22,8 @@ static bool pump_request = false;
 
 static bool pump_restart_timer_active = false;
 static uint32_t pump_restart_since_ms = 0U;
+static bool pump_level_restart_blocked = false;
+static bool pump_pressure_blocked = false;
 
 static bool overpressure_alarm = false;
 /* -------------------------------------------------------------------------- */
@@ -33,8 +35,6 @@ static void tank_controller_enter_idle(void) {
 	air_request = false;
 
 	pump_request = false;
-	pump_restart_timer_active = false;
-	pump_restart_since_ms = 0U;
 
 	/*
 	 * Turn process outputs off.
@@ -70,12 +70,15 @@ static void tank_controller_apply_outputs(bool pressure_ok) {
 	bool outlet_on;
 
 	if (tank_state == TANK_STATE_IDLE) {
-			bsp_relays_all_off();
+			/* Keep the siren controlled by overpressure alarm logic. */
+			bsp_relay_set(BSP_RELAY_PUMP, false);
+			bsp_relay_set(BSP_RELAY_AIR, false);
+			bsp_relay_set(BSP_RELAY_OUTLET, false);
 			bsp_leds_all_off();
 			return;
 	}
 
-	pump_on = pump_request;
+	pump_on = pump_request && pressure_ok && !overpressure_alarm;
 	air_on = pressure_ok && air_request && !overpressure_alarm;
 	outlet_on = (tank_state == TANK_STATE_RUNNING);
 
@@ -88,42 +91,51 @@ static void tank_controller_apply_outputs(bool pressure_ok) {
 	bsp_led_set(BSP_LED_RED2, outlet_on);
 }
 
-static void tank_controller_update_pump(bool level_reached, uint32_t now_ms) {
-	/*
-	 * Reaching the level switch always stops the pump.
-	 */
-	if (level_reached) {
-		pump_request = false;
-		pump_restart_timer_active = false;
-		return;
-	}
+static void tank_controller_update_pump(bool start_active,
+                                        bool level_reached,
+                                        bool pressure_valid,
+                                        uint16_t pressure_mbar,
+                                        uint32_t now_ms) {
+    /*
+     * A confirmed wet level switch stops the pump immediately and arms
+     * a 120-second dry-level qualification for the next refill.
+     * This is not a startup delay when the tank initially reads dry.
+     */
+    if (level_reached) {
+        pump_level_restart_blocked = true;
+        pump_restart_timer_active = false;
+    } else if (pump_level_restart_blocked) {
+        if (!pump_restart_timer_active) {
+            pump_restart_timer_active = true;
+            pump_restart_since_ms = now_ms;
+        } else if ((uint32_t)(now_ms - pump_restart_since_ms) >=
+                   APP_PUMP_RESTART_DELAY_MS) {
+            pump_level_restart_blocked = false;
+            pump_restart_timer_active = false;
+        }
+    }
 
-	/*
-	 * Pump is already running.
-	 */
-	if (pump_request) {
-		return;
-	}
+    /*
+     * Separate pump pressure interlock with hysteresis.
+     * A missing/stale/invalid pressure reading cannot enable the pump.
+     * High-pressure state is retained until a valid low reading.
+     */
+    if (pressure_valid) {
+        if (pressure_mbar >= APP_PRESSURE_PUMP_STOP_MBAR) {
+            pump_pressure_blocked = true;
+        } else if (pressure_mbar <= APP_PRESSURE_PUMP_RESUME_MBAR) {
+            pump_pressure_blocked = false;
+        }
+    }
 
-	/*
-	 * Level has just gone below the switch.
-	 * Start restart qualification timer.
-	 */
-	if (!pump_restart_timer_active) {
-		pump_restart_timer_active = true;
-		pump_restart_since_ms = now_ms;
-		return;
-	}
-
-	/*
-	 * Level must remain below the switch continuously
-	 * for the configured time before restarting.
-	 */
-	if ((uint32_t)(now_ms - pump_restart_since_ms) >= APP_PUMP_RESTART_DELAY_MS) {
-		pump_request = true;
-		pump_restart_timer_active = false;
-	}
+    pump_request = start_active &&
+                   !level_reached &&
+                   !pump_level_restart_blocked &&
+                   pressure_valid &&
+                   !pump_pressure_blocked &&
+                   !overpressure_alarm;
 }
+
 static void tank_controller_update_overpressure(bool pressure_ready, bool pressure_valid, uint16_t pressure_mbar) {
 	pressure_status_t pressure_status;
 
@@ -196,6 +208,12 @@ bool tank_controller_init(uint32_t now_ms) {
 	start_active = bsp_inputs_start_active();
 	level_reached = bsp_inputs_level_reached();
 
+	/* Level history is retained across selector OFF/ON transitions. */
+	pump_level_restart_blocked = level_reached;
+	pump_restart_timer_active = false;
+	pump_restart_since_ms = now_ms;
+	pump_pressure_blocked = false;
+
 	debounce_init(&start_debounce,
 								start_active,
 								now_ms,
@@ -253,6 +271,11 @@ void tank_controller_process(uint32_t now_ms) {
 
 	start_active = debounce_get_state(&start_debounce);
 	level_reached = debounce_get_state(&level_debounce);
+
+	/* Update level lockout even with the start selector OFF. */
+	tank_controller_update_pump(start_active, level_reached,
+								pressure_ready && pressure_valid,
+								pressure_mbar, now_ms);
 	
 	/*
 	 * Maintained selector:
@@ -264,8 +287,6 @@ void tank_controller_process(uint32_t now_ms) {
 		return;
 	}
 
-	tank_controller_update_pump(level_reached, now_ms);
-	
 	/*
 	 * Selector is ON.
 	 *
@@ -279,7 +300,7 @@ void tank_controller_process(uint32_t now_ms) {
 	/*
 	 * Until the first pressure block is available:
 	 *
-	 * - Pump may operate from level control.
+	 * - Pump remains OFF until pressure is valid.
 	 * - Air remains OFF.
 	 * - Outlet remains CLOSED.
 	 */
