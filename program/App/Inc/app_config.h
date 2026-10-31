@@ -12,9 +12,22 @@
 /* Pressure required to enter RUNNING */
 #define APP_PRESSURE_READY_MBAR       5000U
 
-#define APP_PUMP_RESTART_DELAY_MS    1000U
+/* Minimum continuously dry time after the level switch was reached. */
+#define APP_PUMP_RESTART_DELAY_MS    120000UL
+
+/* Provisional pump cutout thresholds (5.5 / 5.3 bar); verify on tank. */
+#define APP_PRESSURE_PUMP_STOP_MBAR   5500U
+#define APP_PRESSURE_PUMP_RESUME_MBAR 5300U
 
 #define APP_PRESSURE_OVERPRESSURE_MBAR        6000U
 #define APP_PRESSURE_OVERPRESSURE_CLEAR_MBAR  5800U
+
+#if APP_PRESSURE_PUMP_RESUME_MBAR >= APP_PRESSURE_PUMP_STOP_MBAR
+#error "Pump pressure resume threshold must be below stop threshold"
+#endif
+
+#if APP_PRESSURE_PUMP_STOP_MBAR >= APP_PRESSURE_OVERPRESSURE_MBAR
+#error "Pump must cut out below the overpressure alarm threshold"
+#endif
 
 #endif /* APP_CONFIG_H */
