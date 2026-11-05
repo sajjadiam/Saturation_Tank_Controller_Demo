@@ -83,7 +83,8 @@ void MX_GPIO_Init(void)
   /* Configure optocoupler outputs: upper PA2, lower PA6. */
   GPIO_InitStruct.Pin = LEVEL_UPPER_SW_N_Pin|LEVEL_LOWER_SW_N_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  /* Active-low optocoupler collector outputs require defined idle HIGH. */
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : START_SEL_N_Pin */
