@@ -16,6 +16,11 @@ typedef struct {
     bool air_vent_open;
     bool high_pressure_alarm;
     bool emergency_trip;
+    bool fill_timeout_fault;
+    bool pump_on_previous;
+    bool pump_clock_initialized;
+    uint32_t pump_last_tick_ms;
+    uint32_t fill_energized_ms;
 } tank_policy_t;
 
 static inline bool tank_policy_level_fault(bool upper_wet, bool lower_wet)
@@ -34,6 +39,11 @@ static inline void tank_policy_init(tank_policy_t *policy,
     policy->air_vent_open = false;
     policy->high_pressure_alarm = false;
     policy->emergency_trip = false;
+    policy->fill_timeout_fault = false;
+    policy->pump_on_previous = false;
+    policy->pump_clock_initialized = false;
+    policy->pump_last_tick_ms = 0U;
+    policy->fill_energized_ms = 0U;
 }
 
 static inline void tank_policy_update_level(tank_policy_t *policy,
@@ -45,7 +55,55 @@ static inline void tank_policy_update_level(tank_policy_t *policy,
     } else if (!lower_wet) {
         policy->filling = true;
     }
-    /* Between the two probes, hold the previously latched fill request. */
+}
+
+/*
+ * Bound aggregate pump-energized time for one refill cycle. The watchdog
+ * persists across temporary interruptions caused by pressure or selector OFF.
+ * Successful upper-level detection clears elapsed time, not an existing fault.
+ * A latched timeout needs selector OFF AND a wet lower sensor to reset.
+ * Unsigned subtraction is rollover-safe for successive ticks < 2^31 ms apart.
+ */
+static inline void tank_policy_track_pump(tank_policy_t *policy,
+                                          uint32_t now_ms,
+                                          bool upper_wet,
+                                          bool lower_wet,
+                                          bool start_active)
+{
+    uint32_t elapsed = 0U;
+    if (policy->pump_clock_initialized) {
+        elapsed = (uint32_t)(now_ms - policy->pump_last_tick_ms);
+    } else {
+        policy->pump_clock_initialized = true;
+    }
+    policy->pump_last_tick_ms = now_ms;
+
+    if (policy->pump_on_previous && !policy->fill_timeout_fault &&
+        !(upper_wet && lower_wet)) {
+        if (elapsed >= APP_PUMP_MAX_FILL_ENERGIZED_MS - policy->fill_energized_ms) {
+            policy->fill_energized_ms = APP_PUMP_MAX_FILL_ENERGIZED_MS;
+            policy->fill_timeout_fault = true;
+            policy->filling = false;
+        } else {
+            policy->fill_energized_ms += elapsed;
+        }
+    }
+    /* Each cycle must re-assert a real pump command to continue counting. */
+    policy->pump_on_previous = false;
+
+    if (upper_wet && lower_wet) {
+        policy->fill_energized_ms = 0U;
+    }
+    if (!start_active && lower_wet && policy->fill_timeout_fault) {
+        policy->filling = false;
+        policy->fill_timeout_fault = false;
+        policy->fill_energized_ms = 0U;
+    }
+}
+
+static inline void tank_policy_record_pump(tank_policy_t *policy, bool on)
+{
+    policy->pump_on_previous = on;
 }
 
 static inline void tank_policy_update_pressure_protection(
@@ -58,6 +116,9 @@ static inline void tank_policy_update_pressure_protection(
     if (overrange) {
         policy->high_pressure_alarm = true;
         policy->emergency_trip = true;
+        /* Electrical high overrange: demand controlled vent, latch until valid low. */
+        policy->air_vent_open = true;
+        policy->air_inlet_open = false;
     }
 
     if (!valid) {
@@ -114,6 +175,12 @@ static inline void tank_policy_update_vent(tank_policy_t *policy,
     }
 }
 
+static inline void tank_policy_close_inlet(tank_policy_t *policy)
+{
+    policy->air_inlet_open = false;
+}
+
+/* Reserved for initial/explicit reset, never use on normal OFF or ADC dropout. */
 static inline void tank_policy_close_air(tank_policy_t *policy)
 {
     policy->air_inlet_open = false;
