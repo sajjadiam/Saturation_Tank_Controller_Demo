@@ -1,75 +1,38 @@
 # Saturation Tank Controller Demo
 
-پروژه‌ی دمو برای کنترل یک مخزن اشباع حدود 50 لیتری با هدف تولید آب اشباع‌شده از هوا / میکروبابل.
+Firmware for the STM32F103C8T6 Blue Pill controlling a roughly 50 L pressurized water/air saturation tank.
 
-## وضعیت فعلی
+## Current firmware (dual-level / air-vent feature branch)
 
-این ریپوزیتوری در حال حاضر فقط شامل مستندات مبنای طراحی است. پیاده‌سازی Firmware هنوز شروع نشده است.
+The controller uses three states: `IDLE`, `PRESSURIZING` and `RUNNING`. A maintained start selector enables operation. The initial air charge closes its air inlet at 5.0 bar, after which the air inlet controls at <4.9 bar ON / >=5.5 bar OFF. Relay 3 now controls **air vent** (not a process-liquid outlet), opening at >=6.0 bar and closing at <=5.5 bar.
 
-## منطق عملکرد فعلی
+A two-probe level latch controls the water pump: start when lower probe is dry; stop when upper probe is wet; retain previous request between the probes. Initial start with both probes dry is immediate if pressure acquisition is valid. The former 120-second timer and routine pump cutoff at 5.5 bar have been removed.
 
-سه حالت پایه برای کنترل در نظر گرفته شده است:
+A 6.0-bar audible overpressure alarm remains active during vent control. A **provisional 6.2-bar emergency trip** disables pump and inlet, and requires selector OFF with valid pressure <=5.5 bar to reset. Invalid pressure data inhibits pump and inlet. A contradictory level reading (upper wet/lower dry) also inhibits outputs. Setpoint selection and vent capacity have **not** been validated on the plant.
 
-1. `IDLE`
-2. `PRESSURIZING`
-3. `RUNNING`
+## Hardware / I/O
 
-### شروع سیکل
+| Connection | Function |
+| --- | --- |
+| PA0 | 0–10 bar / 4–20 mA pressure through shunt, ADC DMA |
+| PA2 | Upper level probe, optocoupler active-low |
+| PA6 | Lower level probe, optocoupler active-low |
+| PB0 | Maintained start selector, active-low |
+| PB5 / relay 1 | Pump contactor |
+| PB4 / relay 2 | Air inlet solenoid |
+| PB3 / relay 3 | Air vent solenoid |
+| PA15 / relay 4 | Siren |
+| PB12 | Buzzer |
 
-با شروع سیکل:
+Controller: 72 MHz STM32F103, TIM3 100 Hz ADC trigger, DMA circular buffer.
 
-- کنترل پمپ فعال می‌شود.
-- کنترل شیر هوای ورودی فعال می‌شود.
-- شیر خروجی بسته می‌ماند.
-- آب و هوا می‌توانند هم‌زمان وارد مخزن شوند.
+## Implementation
 
-### کنترل فشار
+- `program/App/Src/tank_controller.c` — state coordination, safety gating and IO
+- `program/App/Inc/tank_policy.h` — pure, host-testable control policy
+- `program/App/Inc/app_config.h` — threshold configuration
+- `tests/tank_policy_test.c` — host C assertions
+- `docs/dual_level_air_vent.md` — full behavior, wiring and commissioning checklist
+- `docs/design_baseline.md` — historical original single-probe design, superseded where it conflicts with the new document
 
-- سنسور فشار: صنعتی، `0..10 bar` با خروجی `4..20 mA` و تغذیه `24 VDC`.
-- فشار هدف فرایند: حدود `5 bar`.
-- در زمان `PRESSURIZING` فشار به سمت 5 bar کنترل می‌شود.
-- به محض رسیدن اولیه فشار به محدوده هدف، سیستم وارد `RUNNING` می‌شود و شیر خروجی باز می‌شود.
-- در `RUNNING`، فشار به‌صورت پیوسته حول 5 bar کنترل می‌شود.
-
-مقادیر دقیق hysteresis و حدود حفاظتی فشار هنوز نهایی نشده‌اند.
-
-### کنترل سطح آب
-
-- یک Level Switch از نوع Reed Switch استفاده می‌شود.
-- Level Switch فقط برای روشن/خاموش کردن پمپ استفاده می‌شود.
-- اگر آب پایین‌تر از سطح سوئیچ باشد: `Pump = ON`.
-- اگر آب به سطح سوئیچ برسد: `Pump = OFF`.
-- پایین آمدن سطح آب در حالت `RUNNING` باعث بسته شدن خروجی نمی‌شود؛ فقط پمپ دوباره روشن می‌شود.
-
-### شیر خروجی
-
-- در `PRESSURIZING` بسته است.
-- بعد از اولین رسیدن فشار به محدوده 5 bar باز می‌شود.
-- از لحظه باز شدن تا پایان سیکل باز باقی می‌ماند.
-
-## سخت‌افزار اصلی
-
-- کنترلر: Blue Pill مبتنی بر `STM32F103C8T6`
-- خروجی‌ها: ماژول رله 5 ولت چهار کاناله
-- منبع اصلی کنترل: `230 VAC -> 24 VDC / 1 A`
-- تغذیه 5 ولت کنترل: ماژول Buck مبتنی بر `MP1584`
-- سنسور فشار: `24 VDC`, `0..10 bar`, `4..20 mA`
-- Level Switch: Reed Switch
-- شیرهای برقی: `230 VAC`
-- پمپ از طریق کنتاکتور/رله خروجی کنترل می‌شود.
-
-## I/O فعلی
-
-### Inputs
-
-- `AI1`: Pressure Sensor `4..20 mA`
-- `DI1`: Level Switch via optocoupler
-
-### Outputs
-
-- `DO1`: Pump Contactor
-- `DO2`: Air Solenoid Valve
-- `DO3`: Outlet Solenoid Valve
-- `DO4`: Spare
-
-جزئیات کامل سخت‌افزار و منطق فعلی در `docs/design_baseline.md` ثبت شده است.
+**Not production-approved.** Build, hardware-in-loop validation, independent mechanical overpressure relief sizing, sensor polarity, switch geometry and vessel pressure ratings must be verified before energizing the pressurized system.

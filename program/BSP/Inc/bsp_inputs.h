@@ -8,12 +8,13 @@ extern "C" {
 #include <stdbool.h>
 
 /**
- * @brief Returns the logical state of the tank level switch.
+ * @brief Returns the logical state of the upper/lower tank level switches.
  *
  * @return true  Water has reached the level switch.
  * @return false Water is below the level switch.
  */
-bool bsp_inputs_level_reached(void);
+bool bsp_inputs_upper_level_reached(void);
+bool bsp_inputs_lower_level_reached(void);
 
 /**
  * @brief Returns the logical state of the start input.
