@@ -22,19 +22,23 @@ static bool level_fault = false;
 static void tank_controller_enter_idle(void)
 {
     tank_state = TANK_STATE_IDLE;
-    tank_policy_close_air(&policy);
+    tank_policy_close_inlet(&policy);
 
-    /* Alarm relay is independent of the operator start selector. */
+    /* OFF inhibits the pump and air inlet, but retains a latched vent. */
     bsp_relay_set(BSP_RELAY_PUMP, false);
     bsp_relay_set(BSP_RELAY_AIR, false);
-    bsp_relay_set(BSP_RELAY_AIR_VENT, false);
+    bsp_relay_set(BSP_RELAY_AIR_VENT, policy.air_vent_open);
+    tank_policy_record_pump(&policy, false);
     bsp_leds_all_off();
+    bsp_led_set(BSP_LED_RED2, policy.air_vent_open);
 }
 
-static void tank_controller_apply_alarms(void)
+static void tank_controller_apply_alarms(bool pressure_ok, bool start_active)
 {
     const bool alarm = policy.high_pressure_alarm ||
-                       policy.emergency_trip || level_fault;
+                       policy.emergency_trip || level_fault ||
+                       policy.fill_timeout_fault ||
+                       (start_active && !pressure_ok);
     bsp_buzzer_set(alarm);
     bsp_relay_set(BSP_RELAY_SIREN, alarm);
 }
@@ -43,19 +47,21 @@ static void tank_controller_apply_outputs(bool pressure_ok)
 {
     const bool running = (tank_state != TANK_STATE_IDLE);
     const bool outputs_allowed = running && pressure_ok &&
-                                 !policy.emergency_trip && !level_fault;
+                                 !policy.emergency_trip && !level_fault &&
+                                 !policy.fill_timeout_fault;
     const bool pump_on = outputs_allowed && policy.filling;
     const bool air_on = outputs_allowed && policy.air_inlet_open &&
-                        !policy.high_pressure_alarm;
+                        !policy.high_pressure_alarm && !policy.air_vent_open;
     /*
      * A controlled vent must remain usable during the 6.0 bar alarm or an
      * emergency trip, while valid pressure data is still available.
      */
-    const bool vent_on = running && pressure_ok && policy.air_vent_open;
+    const bool vent_on = policy.air_vent_open;
 
     bsp_relay_set(BSP_RELAY_PUMP, pump_on);
     bsp_relay_set(BSP_RELAY_AIR, air_on);
     bsp_relay_set(BSP_RELAY_AIR_VENT, vent_on);
+    tank_policy_record_pump(&policy, pump_on);
 
     bsp_led_set(BSP_LED_BLUE, pump_on);
     bsp_led_set(BSP_LED_RED1, air_on);
@@ -71,7 +77,7 @@ bool tank_controller_init(uint32_t now_ms)
     tank_policy_init(&policy, upper_wet, lower_wet);
     level_fault = tank_policy_level_fault(upper_wet, lower_wet);
     tank_controller_enter_idle();
-    tank_controller_apply_alarms();
+    /* Alarm evaluated again after pressure initialization. */
 
     debounce_init(&start_debounce, start_active, now_ms,
                   APP_START_DEBOUNCE_MS);
@@ -86,6 +92,7 @@ bool tank_controller_init(uint32_t now_ms)
         bsp_buzzer_set(false);
         return false;
     }
+    tank_controller_apply_alarms(false, start_active);
     return true;
 }
 
@@ -118,14 +125,25 @@ void tank_controller_process(uint32_t now_ms)
     upper_wet = debounce_get_state(&upper_level_debounce);
     lower_wet = debounce_get_state(&lower_level_debounce);
 
-    level_fault = tank_policy_level_fault(upper_wet, lower_wet);
+    if (tank_policy_level_fault(upper_wet, lower_wet)) {
+        level_fault = true;
+    } else if (!start_active && lower_wet) {
+        level_fault = false;
+    }
+    tank_policy_track_pump(&policy, now_ms, upper_wet, lower_wet,
+                           start_active);
     tank_policy_update_level(&policy, upper_wet, lower_wet);
 
     tank_policy_update_pressure_protection(
         &policy, pressure_ready && pressure_valid,
         pressure_get_status() == PRESSURE_STATUS_OVERRANGE,
         pressure_mbar, start_active);
-    tank_controller_apply_alarms();
+    /* Vent control must continue even while selector is OFF. */
+    if (pressure_ready && pressure_valid) {
+        tank_policy_update_vent(&policy, pressure_mbar);
+    }
+    tank_controller_apply_alarms(pressure_ready && pressure_valid,
+                                  start_active);
 
     if (!start_active) {
         tank_controller_enter_idle();
@@ -134,11 +152,11 @@ void tank_controller_process(uint32_t now_ms)
 
     if (tank_state == TANK_STATE_IDLE) {
         tank_state = TANK_STATE_PRESSURIZING;
-        tank_policy_close_air(&policy);
+        tank_policy_close_inlet(&policy);
     }
 
     if (!pressure_ready || !pressure_valid) {
-        tank_policy_close_air(&policy);
+        tank_policy_close_inlet(&policy);
         tank_controller_apply_outputs(false);
         return;
     }
@@ -155,7 +173,10 @@ void tank_controller_process(uint32_t now_ms)
         tank_policy_update_air(&policy, pressure_mbar, false);
     }
 
-    tank_policy_update_vent(&policy, pressure_mbar);
+    /* Mutually exclusive inlet and vent outputs. */
+    if (policy.air_vent_open) {
+        policy.air_inlet_open = false;
+    }
     tank_controller_apply_outputs(true);
 }
 
