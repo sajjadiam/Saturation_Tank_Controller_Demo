@@ -29,6 +29,14 @@
 #define APP_PRESSURE_EMERGENCY_TRIP_MBAR   6200U
 #define APP_PRESSURE_EMERGENCY_RESET_MBAR  5500U
 
+/*
+ * Commissioning placeholder: maximum cumulative pump-on time per fill.
+ * This is a FAULT timeout, NOT a 120-second normal restart delay.
+ * Must be set against max pump inflow, minimum safe headspace and
+ * upper/lower probe spacing before operation on pressurized equipment.
+ */
+#define APP_PUMP_MAX_FILL_ENERGIZED_MS 120000UL
+
 #if APP_PRESSURE_AIR_ON_MBAR >= APP_PRESSURE_AIR_OFF_MBAR
 #error "Air inlet hysteresis must be positive"
 #endif
@@ -40,6 +48,10 @@
 #endif
 #if APP_PRESSURE_EMERGENCY_RESET_MBAR >= APP_PRESSURE_EMERGENCY_TRIP_MBAR
 #error "Emergency reset must be below trip"
+#endif
+
+#if APP_PUMP_MAX_FILL_ENERGIZED_MS == 0U
+#error "Pump fault timeout must be nonzero"
 #endif
 
 #endif /* APP_CONFIG_H */
