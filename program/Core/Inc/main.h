@@ -63,8 +63,10 @@ void Error_Handler(void);
 #define LED_RED1_N_GPIO_Port GPIOC
 #define LED_RED2_N_Pin GPIO_PIN_15
 #define LED_RED2_N_GPIO_Port GPIOC
-#define LEVEL_SW_N_Pin GPIO_PIN_2
-#define LEVEL_SW_N_GPIO_Port GPIOA
+#define LEVEL_UPPER_SW_N_Pin GPIO_PIN_2
+#define LEVEL_LOWER_SW_N_Pin GPIO_PIN_6
+#define LEVEL_UPPER_SW_N_GPIO_Port GPIOA
+#define LEVEL_LOWER_SW_N_GPIO_Port GPIOA
 #define START_SEL_N_Pin GPIO_PIN_0
 #define START_SEL_N_GPIO_Port GPIOB
 #define BUZZER_EN_Pin GPIO_PIN_12
