@@ -37,7 +37,22 @@ This assumes both optocoupler outputs have defined logic levels with the existin
 
 A generic NC solenoid may fail closed on power loss, so it cannot function as independent relief. Never rely on the software alarm, ADC or firmware-controlled vent as the sole overpressure protective device.
 
-## Tests before merging to main / energizing plant
+
+## Safety corrections (2026-11-05)
+
+- The software-controlled air vent command is latched across selector OFF and temporary pressure-sensor invalidity once a valid sample reaches 6.0 bar; it closes only when a later **valid** pressure sample is at or below 5.5 bar. Electrical high overrange requests vent and latches the emergency trip. This is a process vent, **not** a certified independent pressure-relief device; a fail-closed solenoid loses this function without power.
+- Upper and lower level optocoupler inputs PA2/PA6 now request internal GPIO pull-ups in both generated GPIO and CubeMX configuration. Assumes sinking / open-collector optocoupler outputs; check actual board schematic, input idle HIGH, ground reference and voltage limits. Internal pull-up cannot diagnose an open wire that looks dry.
+- Normal pump operation still uses dual level hysteresis, with **no 120-second restart delay**. A **separate provisional 120-second accumulated pump-energized-time fault limit per refill** prevents indefinite running if the upper level sensor stays dry. Elapsed pump-on intervals are accumulated across brief stops and selector OFF. Upper wet clears accumulated time. A latched timeout requires selector OFF and wet lower-level feedback to rearm, followed by lower dry to start a new fill.
+- This protective 120-second limit is **NOT commissioned**. At 20 L/min it corresponds to approximately 40 L of inflow; depending on usable volume/headspace it may be unsafe, while at 3.5 L/min only about 7 L is delivered and it may trip prematurely. Set a validated timer after measuring worst-case flow, minimum available headspace, and normal refill volume; use a separate independent high-high level device when necessary.
+- On missing/stale/under-range pressure data, pump and air inlet remain OFF, audible alarm commands ON while start selector is ON, and an already latched vent stays commanded ON. A sensor failure before a high-pressure condition was ever observed cannot prove that venting is safe or necessary: independent mechanical relief is mandatory.
+- On power failure MCU/GPIO cannot maintain a normally closed vent, even if software latches the command. Proper pressure relief must be mechanical and independently rated.
+
+## Verification status
+
+- Host-side integration harness (mock GPIO/pressure/debounce) locally compiled with `-std=c11 -Wall -Wextra -Werror -pedantic` and passed 15 scenarios; ASan/UBSan run passed in the same local test environment.
+- Real STM32 target toolchain build, on-board IO and HIL, and pressure-vessel commissioning are **not verified**. All safety thresholds are provisional.
+
+## Tests before energizing plant
 
 - Host policy test: `cc -std=c11 -Wall -Wextra -Werror -pedantic -Iprogram/App/Inc tests/tank_policy_test.c -o /tmp/tank_policy_test && /tmp/tank_policy_test`
 - Clean target build using installed STM32CubeF1 headers/HAL and MDK-ARM or arm-none-eabi-gcc.
